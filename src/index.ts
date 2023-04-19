@@ -18,7 +18,7 @@ const __dirname = path.dirname(__filename);
 
 const program = new Command();
 
-program.name('imgsharp');
+program.name('imagsharp');
 
 program.version(`${pkg.version}`, "-v, --version", "View the version of the CLI");
 
