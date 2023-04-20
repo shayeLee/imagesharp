@@ -103,6 +103,10 @@ dist
 # TernJS port file
 .tern-port
 
+.vscode
+
 assets
 target
+target-files
+target-dir
 bin

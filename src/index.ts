@@ -1,12 +1,13 @@
 import path from "path";
 import fs from "fs";
+import { stat } from "fs/promises";
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import { Command } from "commander";
 import { mkdirp } from "mkdirp";
 import sharp from "sharp";
 import ProgressBar from "progress";
-// import ora from "ora";
+import { globSync } from "glob";
 import { cwd } from 'node:process';
 
 import { createRequire } from 'node:module';
@@ -22,7 +23,7 @@ program.name('imagsharp');
 
 program.version(`${pkg.version}`, "-v, --version", "View the version of the CLI");
 
-program.requiredOption("-d, --dest <dest>", "The destination folder");
+program.requiredOption("-d, --dest <dest>", "The destination folder", "./imagsharp-dest");
 
 program.option("-w, --width [width]", "The width of the picture");
 
@@ -64,9 +65,26 @@ const edit = async (
   await newImg.toFile(newPath);
 };
 
-program.argument("<source...>").action((source, opts) => {
-  const imgList = source as string[];
-  const TARGET = opts.dest || "";
+program.argument("<source...>").action(async (source, opts) => {
+  if (!Array.isArray(source) || source.length === 0) {
+    console.error(chalk.red("Invalid Input"));
+    return;
+  }
+  
+  const TARGET = opts.dest || "./imagsharp-dest";
+  let imgList: string[] = [];
+  let root = "";
+
+  const assets = source[0] as string;
+  const stats = await stat(assets);
+  if (stats.isDirectory()) {
+    root = path.resolve(cwd(), assets);
+    imgList = globSync(
+      path.resolve(cwd(), assets, "**/*.{png,jpg,jpeg,webp}")
+    );
+  } else {
+    imgList = source as string[];
+  }
 
   const progressBar = new ProgressBar("[:bar] :percent", {
     width: 50,
@@ -75,7 +93,11 @@ program.argument("<source...>").action((source, opts) => {
     incomplete: " ",
   });
   
-  imgList.forEach(async (imgPath, idx) => {
+  imgList.forEach(async (_imgPath, idx) => {
+    let imgPath = _imgPath;
+    if (!path.isAbsolute(_imgPath)) {
+      imgPath = path.resolve(cwd(), _imgPath);
+    }
     const pathObj = path.parse(imgPath);
     
     if (![".png", ".jpg", ".jpeg", ".webp"].includes(pathObj.ext)) {
@@ -83,20 +105,9 @@ program.argument("<source...>").action((source, opts) => {
       return;
     }
 
-    const dirArr = path.normalize(pathObj.dir).split(path.sep);
-
-    let subDir = "";
-    for (let i = 1; i < dirArr.length; i++) {
-      subDir += `/${dirArr[i]}`;
-    }
-    if (subDir.length > 0) {
-      subDir = subDir.slice(1);
-    }
-
-    const dir = path.resolve(
-      cwd(),
-      `${path.normalize(TARGET)}/${subDir}`
-    );
+    const dir = root === ""
+      ? path.resolve(cwd(), TARGET)
+      : path.resolve(cwd(), TARGET, pathObj.dir.substring(root.length + 1));
   
     if (!fs.existsSync(dir)) {
       mkdirp.sync(dir);
@@ -125,7 +136,9 @@ program.argument("<source...>").action((source, opts) => {
     progressBar.tick();
 
     if (idx === imgList.length - 1) {
-      console.log(chalk.green("imgsharp successful!"));
+      setTimeout(() => {
+        console.log(chalk.green("imagsharp successful!"));
+      });
     }
   });
 });
