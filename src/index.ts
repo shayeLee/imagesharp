@@ -79,9 +79,7 @@ program.argument("<source...>").action(async (source, opts) => {
   const stats = await stat(assets);
   if (stats.isDirectory()) {
     root = path.resolve(cwd(), assets);
-    imgList = globSync(
-      path.resolve(cwd(), assets, "**/*.{png,jpg,jpeg,webp}")
-    );
+    imgList = globSync(root.split(path.sep).join("/") + `/**/*.{png,jpg,jpeg,webp}`)
   } else {
     imgList = source as string[];
   }
