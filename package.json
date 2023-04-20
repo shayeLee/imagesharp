@@ -6,7 +6,7 @@
     "node": ">=14.0.0"
   },
   "bin": {
-    "imgsharp": "bin/index.js"
+    "imagsharp": "bin/index.js"
   },
   "description": "",
   "main": "bin/index.js",
