@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.6](https://github.com/shayeLee/imgsharp/compare/v1.0.5...v1.0.6) (2023-04-20)
+
+
+### Bug Fixes
+
+* 🐞 directory ([a47ca39](https://github.com/shayeLee/imgsharp/commit/a47ca397d79fe85deb4d0fa2f761b7c3d42e1355))
+
 ### [1.0.5](https://github.com/shayeLee/imgsharp/compare/v1.0.4...v1.0.5) (2023-04-20)
 
 
