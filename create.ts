@@ -7,4 +7,4 @@ const __dirname = path.dirname(__filename);
 
 const content = fs.readFileSync(path.resolve(__dirname, "./bin/index.js")).toLocaleString();
 
-fs.writeFileSync(path.resolve(__dirname, "./bin/index.js"), "#!/usr/bin/env node\r\n" + content);
+fs.writeFileSync(path.resolve(__dirname, "./bin/index.js"), "#!/usr/bin/env node\r\n\r\n" + content);
