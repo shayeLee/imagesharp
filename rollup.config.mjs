@@ -8,7 +8,7 @@ const config = [
     {
         input: "src/index.ts",
         output: [
-            { file: "bin/index.js", sourcemap: true, format: "es" }
+            { file: "bin/commander.js", sourcemap: true, format: "es" }
         ],
         plugins: [
             typescript({
