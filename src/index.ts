@@ -1,3 +1,5 @@
+#!/usr/bin/env ts-node-esm
+
 import path from "path";
 import fs from "fs";
 import { stat } from "fs/promises";
