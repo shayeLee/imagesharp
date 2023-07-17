@@ -12,7 +12,7 @@
   "main": "bin/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rollup -c ./rollup.config.mjs && ts-node-esm ./create.ts"
+    "build": "rollup -c ./rollup.config.mjs && ts-node-esm ./create.ts && dos2unix ./bin/index.js"
   },
   "keywords": [],
   "author": "",
