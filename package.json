@@ -5,9 +5,6 @@
   "engines": {
     "node": ">=14.0.0"
   },
-  "imports": {
-    "@types/progress": "./node_modules/@types/progress"
-  },
   "bin": {
     "imagsharp": "src/index.ts"
   },
