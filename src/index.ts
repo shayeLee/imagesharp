@@ -41,10 +41,17 @@ const edit = async (
   quality: number,
   _format: string
 ) => {
-  const img = sharp(imgPath);
+  const ext = pathObj.ext;
+  let sharpOptions: sharp.SharpOptions | undefined;
+  if (ext === ".gif") {
+    sharpOptions = {
+      animated: true,
+      limitInputPixels: false
+    }
+  }
+  const img = sharp(imgPath, sharpOptions);
   const metadata = await img.metadata();
   const width = _width || metadata.width;
-  const ext = pathObj.ext;
   const name = pathObj.name;
   const format = _format || ext.slice(1);
 
@@ -56,6 +63,12 @@ const edit = async (
 
     case "webp":
       newImg = img.resize(width).webp({ quality, alphaQuality: 100 });
+      break;
+
+    case "gif":
+      newImg = img.gif({
+        colours: Math.floor(256 * quality / 100),
+      });
       break;
 
     default:
@@ -77,70 +90,84 @@ program.argument("<source...>").action(async (source, opts) => {
   let imgList: string[] = [];
   let root = "";
 
-  const assets = source[0] as string;
-  const stats = await stat(assets);
-  if (stats.isDirectory()) {
-    root = path.resolve(cwd(), assets);
-    imgList = globSync(root.split(path.sep).join("/") + `/**/*.{png,jpg,jpeg,webp}`)
-  } else {
-    imgList = source as string[];
+  console.log("source =>", source);
+  const _getFiles = async (path: string) => {
+    try {
+      const stats = await stat(path);
+      console.log("stats =>", stats);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  for (let i = 0; i < source.length; i++) {
+    await _getFiles(source[i]);
   }
 
-  const progressBar = new ProgressBar("[:bar] :percent", {
+  // const assets = source[0] as string;
+  // const stats = await stat(assets);
+  // if (stats.isDirectory()) {
+  //   root = path.resolve(cwd(), assets);
+  //   imgList = globSync(root.split(path.sep).join("/") + `/**/*.{png,jpg,jpeg,webp,gif}`)
+  // } else {
+  //   imgList = source as string[];
+  // }
+
+  /* const progressBar = new ProgressBar("[:bar] :percent", {
     width: 50,
     total: imgList.length,
     complete: "=",
     incomplete: " ",
   });
   
-  imgList.forEach(async (_imgPath, idx) => {
-    let imgPath = _imgPath;
-    if (!path.isAbsolute(_imgPath)) {
-      imgPath = path.resolve(cwd(), _imgPath);
-    }
-    const pathObj = path.parse(imgPath);
-    
-    if (![".png", ".jpg", ".jpeg", ".webp"].includes(pathObj.ext)) {
-      progressBar.tick();
-      return;
-    }
-
-    const dir = root === ""
-      ? path.resolve(cwd(), TARGET)
-      : path.resolve(cwd(), TARGET, pathObj.dir.substring(root.length + 1));
-  
-    if (!fs.existsSync(dir)) {
-      mkdirp.sync(dir);
-    }
-
-    let width = 0;
-    if (typeof opts.width === "string" && opts.width.length > 0) {
-      const _width = parseInt(opts.width);
-      if (!isNaN(_width)) {
-        width = _width;
+  const prList: Promise<void>[] = [];
+  imgList.forEach(async (_imgPath) => {
+    prList.push(new Promise<void>((resolve) => {
+      let imgPath = _imgPath;
+      if (!path.isAbsolute(_imgPath)) {
+        imgPath = path.resolve(cwd(), _imgPath);
       }
-    }
+      const pathObj = path.parse(imgPath);
 
-    let quality = 0;
-    if (typeof opts.quality === "string" && opts.quality.length > 0) {
-      const _quality = parseInt(opts.quality);
-      if (!isNaN(_quality)) {
-        quality = _quality;
-      } else {
-        quality = 80;
+      if (![".png", ".jpg", ".jpeg", ".webp", ".gif"].includes(pathObj.ext)) {
+        progressBar.tick();
+        resolve();
+        return;
       }
-    }
-  
-    await edit(imgPath, pathObj, dir, width, quality, opts.format);
-    
-    progressBar.tick();
 
-    if (idx === imgList.length - 1) {
-      setTimeout(() => {
-        console.log(chalk.green("imagsharp successful!"));
+      const dir = root === ""
+        ? path.resolve(cwd(), TARGET)
+        : path.resolve(cwd(), TARGET, pathObj.dir.substring(root.length + 1));
+
+      if (!fs.existsSync(dir)) {
+        mkdirp.sync(dir);
+      }
+
+      let width = 0;
+      if (typeof opts.width === "string" && opts.width.length > 0) {
+        const _width = parseInt(opts.width);
+        if (!isNaN(_width)) {
+          width = _width;
+        }
+      }
+
+      let quality = 0;
+      if (typeof opts.quality === "string" && opts.quality.length > 0) {
+        const _quality = parseInt(opts.quality);
+        if (!isNaN(_quality)) {
+          quality = _quality;
+        } else {
+          quality = 80;
+        }
+      }
+
+      edit(imgPath, pathObj, dir, width, quality, opts.format).finally(() => {
+        progressBar.tick();
+        resolve();
       });
-    }
+    }));
   });
+  await Promise.allSettled(prList);
+  console.log(chalk.green("imagsharp successful!")); */
 });
 
 program.parse(process.argv);
