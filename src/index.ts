@@ -16,6 +16,8 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const pkg = require("../package.json");
 
+const EXPECTED_EXTS = ["png", "jpg", "jpeg", "webp", "gif"];
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -26,6 +28,8 @@ program.name('imagsharp');
 program.version(`${pkg.version}`, "-v, --version", "View the version of the CLI");
 
 program.requiredOption("-d, --dest <dest>", "The destination folder", "./imagsharp-dest");
+
+program.option("-e, --expected-exts [expectedExts]", "File types to compress");
 
 program.option("-w, --width [width]", "The width of the picture");
 
@@ -77,42 +81,69 @@ const edit = async (
   }
 
   const newPath = `${dir}/${name}.${format}`;
+  console.log(chalk.blue(newPath));
   await newImg.toFile(newPath);
 };
 
-program.argument("<source...>").action(async (source, opts) => {
+const findCommonPrefix = (strings: string[]) => {
+  if (!Array.isArray(strings) || strings.length === 0) {
+    return "";
+  }
+
+  const firstString = strings[0];
+  let commonPrefix = "";
+
+  for (let i = 0; i < firstString.length; i++) {
+    const currentChar = firstString[i];
+
+    if (strings.every(str => str[i] === currentChar)) {
+      commonPrefix += currentChar;
+    } else {
+      break;
+    }
+  }
+
+  return commonPrefix;
+}
+
+
+program.argument("<source...>", "Target file or folder to compress").action(async (source, opts) => {
   if (!Array.isArray(source) || source.length === 0) {
     console.error(chalk.red("Invalid Input"));
     return;
   }
   
+  const expectedExts: string[] =
+    typeof opts.expectedExts === "string" ? opts.expectedExts.split(",") : EXPECTED_EXTS;
   const TARGET = opts.dest || "./imagsharp-dest";
+  
   let imgList: string[] = [];
-  let root = "";
 
-  console.log("source =>", source);
-  const _getFiles = async (path: string) => {
-    try {
-      const stats = await stat(path);
-      console.log("stats =>", stats);
-    } catch (err) {
-      console.error(err);
+  source = source.map((p) => path.resolve(cwd(), p));
+  const root = findCommonPrefix(source);
+  const _getFiles = (filePath: string) => {
+    if (fs.existsSync(filePath)) {
+      if (fs.lstatSync(filePath).isDirectory()) {
+        imgList = imgList.concat(globSync(
+          `${root.split(path.sep).join("/")}/**/*.${expectedExts.length === 1 ? expectedExts.join(",") : `{${expectedExts.join(",")}}`}`
+        ));
+      } else {
+        imgList.push(filePath);
+      }
+    } else {
+      imgList = imgList.concat(globSync(filePath.split(path.sep).join("/")));
     }
   };
   for (let i = 0; i < source.length; i++) {
-    await _getFiles(source[i]);
+    _getFiles(source[i]);
   }
 
-  // const assets = source[0] as string;
-  // const stats = await stat(assets);
-  // if (stats.isDirectory()) {
-  //   root = path.resolve(cwd(), assets);
-  //   imgList = globSync(root.split(path.sep).join("/") + `/**/*.{png,jpg,jpeg,webp,gif}`)
-  // } else {
-  //   imgList = source as string[];
-  // }
+  if (imgList.length === 0) {
+    console.error(chalk.red("Source files does not exist"));
+    return;
+  }
 
-  /* const progressBar = new ProgressBar("[:bar] :percent", {
+  const progressBar = new ProgressBar("[:bar] :percent", {
     width: 50,
     total: imgList.length,
     complete: "=",
@@ -120,23 +151,17 @@ program.argument("<source...>").action(async (source, opts) => {
   });
   
   const prList: Promise<void>[] = [];
-  imgList.forEach(async (_imgPath) => {
+  imgList.forEach(async (imgPath) => {
     prList.push(new Promise<void>((resolve) => {
-      let imgPath = _imgPath;
-      if (!path.isAbsolute(_imgPath)) {
-        imgPath = path.resolve(cwd(), _imgPath);
-      }
       const pathObj = path.parse(imgPath);
 
-      if (![".png", ".jpg", ".jpeg", ".webp", ".gif"].includes(pathObj.ext)) {
+      if (!expectedExts.map((ext) => `.${ext}`).includes(pathObj.ext)) {
         progressBar.tick();
         resolve();
         return;
       }
 
-      const dir = root === ""
-        ? path.resolve(cwd(), TARGET)
-        : path.resolve(cwd(), TARGET, pathObj.dir.substring(root.length + 1));
+      const dir = path.resolve(cwd(), TARGET, pathObj.dir.slice(root.length + 1));
 
       if (!fs.existsSync(dir)) {
         mkdirp.sync(dir);
@@ -167,7 +192,7 @@ program.argument("<source...>").action(async (source, opts) => {
     }));
   });
   await Promise.allSettled(prList);
-  console.log(chalk.green("imagsharp successful!")); */
+  console.log(chalk.green("imagsharp successful!"));
 });
 
 program.parse(process.argv);

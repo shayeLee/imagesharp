@@ -10,7 +10,7 @@
   },
   "description": "",
   "scripts": {
-    "test": "rm -rf imagsharp-dest && ts-node-esm src/index.ts assets/**/*.{png,jpg}",
+    "test": "rm -rf imagsharp-dest && ts-node-esm src/index.ts assets",
     "build": "rollup -c ./rollup.config.mjs && ts-node-esm ./create.ts && dos2unix ./bin/index.js"
   },
   "keywords": [],
