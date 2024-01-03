@@ -2,7 +2,6 @@
 
 import path from "path";
 import fs from "fs";
-import { stat } from "fs/promises";
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import { Command } from "commander";

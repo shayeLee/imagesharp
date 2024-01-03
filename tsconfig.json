@@ -9,5 +9,8 @@
     "baseUrl": "./",
     // "outDir": "bin",
     "sourceMap": true,
+  },
+  "ts-node": {
+    "esm": true
   }
 }
