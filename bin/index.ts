@@ -1,7 +1,8 @@
-#!/usr/bin/env ts-node-esm
+#!/usr/bin/env tsx
 
 import path from "path";
 import fs from "fs";
+import { exit, cwd } from "process";
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import { Command } from "commander";
@@ -9,16 +10,13 @@ import { mkdirp } from "mkdirp";
 import sharp from "sharp";
 import ProgressBar from "progress";
 import { globSync } from "glob";
-import { cwd } from 'node:process';
-
-import { createRequire } from 'node:module';
-const require = createRequire(import.meta.url);
-const pkg = require("../package.json");
-
-const EXPECTED_EXTS = ["png", "jpg", "jpeg", "webp", "gif"];
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../package.json")).toString());
+
+const EXPECTED_EXTS = ["png", "jpg", "jpeg", "webp", "gif"];
 
 const program = new Command();
 
@@ -104,7 +102,6 @@ const findCommonPrefix = (strings: string[]) => {
 
   return commonPrefix;
 }
-
 
 program.argument("<source...>", "Target file or folder to compress").action(async (source, opts) => {
   if (!Array.isArray(source) || source.length === 0) {
@@ -192,6 +189,7 @@ program.argument("<source...>", "Target file or folder to compress").action(asyn
   });
   await Promise.allSettled(prList);
   console.log(chalk.green("imagsharp successful!"));
+  exit(0);
 });
 
 program.parse(process.argv);

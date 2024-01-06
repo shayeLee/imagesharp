@@ -1,16 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ES2015",
     "module": "NodeNext",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "strict": true,
     "noImplicitAny": true,
-    "baseUrl": "./",
-    // "outDir": "bin",
+    "outDir": "bin",
     "sourceMap": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "ts-node": {
-    "esm": true
-  }
+  "exclude": [],
+  "include": [
+    "./bin/**/*.ts"
+  ]
 }

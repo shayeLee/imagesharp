@@ -6,38 +6,30 @@
     "node": ">=14.0.0"
   },
   "bin": {
-    "imagsharp": "src/index.ts"
+    "imagsharp": "bin/index.ts"
   },
   "description": "",
   "scripts": {
-    "test": "rm -rf imagsharp-dest && ts-node-esm src/index.ts assets",
-    "build": "rollup -c ./rollup.config.mjs && ts-node-esm ./create.ts && dos2unix ./bin/index.js"
+    "build": "rm -rf ./bin && tsc",
+    "debug": "rm -rf imagsharp-dest && imagsharp assets"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@rollup/plugin-json": "^6.0.0",
-    "@rollup/plugin-node-resolve": "^15.0.2",
-    "@rollup/plugin-commonjs": "^24.1.0",
-    "@rollup/plugin-typescript": "^11.0.0",
     "@types/node": "^18.15.11",
     "@types/progress": "^2.0.5",
-    "rollup": "^3.20.2",
-    "rollup-plugin-dts": "^5.3.0",
-    "ts-node": "^10.9.1",
-    "tslib": "^2.5.0"
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0"
   },
   "dependencies": {
-    "@babel/core": "^7.21.4",
-    "@babel/runtime": "^7.21.0",
     "chalk": "^5.2.0",
     "commander": "^10.0.1",
     "glob": "^10.2.1",
     "mkdirp": "^3.0.0",
     "ora": "^6.3.0",
     "progress": "^2.0.3",
-    "sharp": "^0.32.0",
-    "typescript": "^5.0.4"
+    "sharp": "^0.33.1",
+    "zx": "^7.2.3"
   }
 }
