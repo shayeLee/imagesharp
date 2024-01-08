@@ -12,6 +12,6 @@
   },
   "exclude": [],
   "include": [
-    "./bin/**/*.ts"
+    "./src/**/*.ts"
   ]
 }

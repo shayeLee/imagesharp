@@ -6,12 +6,13 @@
     "node": ">=14.0.0"
   },
   "bin": {
-    "imagsharp": "bin/index.ts"
+    "imagsharp": "bin/index.js"
   },
   "description": "",
   "scripts": {
     "build": "rm -rf ./bin && tsc",
-    "debug": "rm -rf imagsharp-dest && imagsharp assets"
+    "debug": "rm -rf imagsharp-dest && tsx src/index.ts assets",
+    "test": "rm -rf imagsharp-dest && bin/index.js"
   },
   "keywords": [],
   "author": "",
