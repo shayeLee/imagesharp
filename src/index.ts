@@ -30,6 +30,8 @@ program.option("-e, --expected-exts [expectedExts]", "File types to compress");
 
 program.option("-w, --width [width]", "The width of the picture");
 
+program.option("-s, --scale [scale]", "The scale of the picture");
+
 program.option("-f, --format [format]", "The media type of the picture");
 
 program.option("-q, --quality [quality]", "Picture quality", "80");
@@ -39,6 +41,7 @@ const edit = async (
   pathObj: path.ParsedPath,
   dir: string,
   _width: number,
+  scale: number,
   quality: number,
   _format: string
 ) => {
@@ -52,7 +55,7 @@ const edit = async (
   }
   const img = sharp(imgPath, sharpOptions);
   const metadata = await img.metadata();
-  const width = _width || metadata.width;
+  const width = Math.round(((_width || metadata.width) as number) * scale);
   const name = pathObj.name;
   const format = _format || ext.slice(1);
 
@@ -170,6 +173,14 @@ program.argument("<source...>", "Target file or folder to compress").action(asyn
           width = _width;
         }
       }
+      
+      let scale = 1;
+      if (typeof opts.scale === "string" && opts.scale.length > 0) {
+        const _scale = parseFloat(opts.scale);
+        if (!isNaN(_scale)) {
+          scale = _scale;
+        }
+      }
 
       let quality = 0;
       if (typeof opts.quality === "string" && opts.quality.length > 0) {
@@ -181,7 +192,7 @@ program.argument("<source...>", "Target file or folder to compress").action(asyn
         }
       }
 
-      edit(imgPath, pathObj, dir, width, quality, opts.format).finally(() => {
+      edit(imgPath, pathObj, dir, width, scale, quality, opts.format).finally(() => {
         progressBar.tick();
         resolve();
       });

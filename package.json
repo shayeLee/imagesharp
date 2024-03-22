@@ -11,8 +11,7 @@
   "description": "",
   "scripts": {
     "build": "rm -rf ./bin && tsc",
-    "debug": "rm -rf imagsharp-dest && tsx src/index.ts assets",
-    "test": "rm -rf imagsharp-dest && bin/index.js"
+    "debug": "rm -rf imagsharp-dest && tsx src/index.ts assets -s 0.69"
   },
   "keywords": [],
   "author": "",
