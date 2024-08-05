@@ -11,7 +11,7 @@
   "description": "",
   "scripts": {
     "build": "rm -rf ./bin && tsc",
-    "debug": "rm -rf imagsharp-dest && tsx src/index.ts assets/comment_item.png -f webp"
+    "debug": "rm -rf imagsharp-dest && tsx src/index.ts assets/bg_22.jpg -f webp"
   },
   "keywords": [],
   "author": "",
@@ -33,6 +33,6 @@
     "zx": "^7.2.3"
   },
   "volta": {
-    "node": "14.21.3"
+    "node": "20.16.0"
   }
 }

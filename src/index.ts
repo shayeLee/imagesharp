@@ -53,7 +53,7 @@ const edit = async (
       limitInputPixels: false
     }
   }
-  const img = sharp(imgPath, sharpOptions);
+  const img = sharp(imgPath, sharpOptions).toColourspace('srgb');
   const metadata = await img.metadata();
   const width = Math.round(((_width || metadata.width) as number) * scale);
   const name = pathObj.name;
@@ -66,7 +66,7 @@ const edit = async (
       break;
 
     case "webp":
-      newImg = img.resize(width).webp({ quality, alphaQuality: 100 });
+      newImg = img.resize(width).webp({ preset: 'photo', quality });
       break;
 
     case "gif":
@@ -188,7 +188,7 @@ program.argument("<source...>", "Target file or folder to compress").action(asyn
         if (!isNaN(_quality)) {
           quality = _quality;
         } else {
-          quality = 80;
+          quality = 100;
         }
       }
 
