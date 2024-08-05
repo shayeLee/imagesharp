@@ -53,7 +53,7 @@ const edit = async (
       limitInputPixels: false
     }
   }
-  const img = sharp(imgPath, sharpOptions).toColourspace('srgb');
+  const img = sharp(imgPath, sharpOptions);
   const metadata = await img.metadata();
   const width = Math.round(((_width || metadata.width) as number) * scale);
   const name = pathObj.name;
